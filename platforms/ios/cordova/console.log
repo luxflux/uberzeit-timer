@@ -50,3 +50,16 @@ Terminating in response to SpringBoard's termination.
 2014-02-28 01:07:04.372 uberZeit Timer[19354:80b] stop
 2014-02-28 01:07:21.589 uberZeit Timer[19354:80b] {"running":false,"duration":null}
 2014-02-28 01:07:23.419 uberZeit Timer[19354:80b] start
+2014-02-28 01:08:46.537 uberZeit Timer[19354:80b] {"running":true,"duration":"00:02"}
+2014-02-28 01:08:49.153 uberZeit Timer[19354:80b] stop
+2014-02-28 01:25:33.020 uberZeit Timer[21759:80b] Multi-tasking -> Device: YES, App: YES
+2014-02-28 01:25:33.032 uberZeit Timer[21759:80b] Unlimited access to network resources
+2014-02-28 01:25:33.364 uberZeit Timer[21759:80b] Resetting plugins due to page load.
+2014-02-28 01:25:33.803 uberZeit Timer[21759:80b] Finished load of: file:///Users/raf/Library/Application%20Support/iPhone%20Simulator/7.0.3/Applications/7D921A6D-415D-431B-8A33-249A40108451/uberZeit%20Timer.app/www/index.html#/timer
+2014-02-28 01:25:33.907 uberZeit Timer[21759:80b] {"running":false,"duration":null}
+2014-02-28 01:25:36.378 uberZeit Timer[21759:80b] start
+2014-02-28 01:25:38.247 uberZeit Timer[21759:80b] {"running":true,"duration":"00:01"}
+2014-02-28 01:25:40.758 uberZeit Timer[21759:80b] {"running":true,"duration":"00:01"}
+2014-02-28 01:25:43.425 uberZeit Timer[21759:80b] {"running":true,"duration":"00:01"}
+2014-02-28 01:25:45.045 uberZeit Timer[21759:80b] stop
+2014-02-28 01:25:46.442 uberZeit Timer[21759:80b] {"running":false,"duration":null}
