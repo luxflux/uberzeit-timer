@@ -18,6 +18,9 @@
     <script src="js/angular-ui/angular-ui-router.js"></script>
     <script src="js/ionic-angular.js"></script>
 
+    <script src="js/moment.min.js"></script>
+    <script src="js/angular-moment.min.js"></script>
+
     <!-- Needed for Cordova/PhoneGap -->
     <script type="text/javascript" src="cordova.js"></script>
     <script src="js/app.js"></script>
@@ -64,7 +67,7 @@
     <script id="timer.html" type="text/ng-template">
       <ion-view title="'Timer'">
         <ion-header-bar title="Page.title" left-buttons="leftButtons"></ion-header-bar>
-        <ion-content has-header="true" padding="true" on-refresh="onRefresh()">
+        <ion-content has-header="true" padding="true" on-refresh="refresh()">
           <ion-refresher></ion-refresher>
 
           <div class="card alert" ng-show="Flash.message">
@@ -73,7 +76,13 @@
 
           <div class="row">
             <div class="col">
-              <h1>{{timer.duration}}</h1>
+              <div ng-show="timer.running">
+                <h1>Your timer is running</h1>
+                <h1>since <span am-time-ago="timer.started_at"></span></h1>
+              </div>
+              <div ng-show="timer.stopped">
+                <h1>Your timer is stopped</h1>
+              </div>
             </div>
           </div>
 
@@ -88,7 +97,7 @@
               <button class="button button-block button-assertive" ng-click="stopTimer()" ng-show="timer.running">
                 Stop
               </button>
-              <button class="button button-block button-balanced" ng-click="startTimer()" ng-hide="timer.running">
+              <button class="button button-block button-balanced" ng-click="startTimer()" ng-show="timer.stopped">
                 Start
               </button>
             </div>

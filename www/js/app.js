@@ -1,6 +1,6 @@
-angular.module('uberzeit-timer', ['ionic', 'ngResource'])
+angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, amTimeAgoConfig) {
 
   $stateProvider
     .state('settings', {
@@ -16,6 +16,8 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource'])
 
     // if none of the above are matched, go to this one
     $urlRouterProvider.otherwise("/timer");
+
+    amTimeAgoConfig.withoutSuffix = true;
 })
 
 // {
@@ -35,15 +37,59 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource'])
                              stop: {method: 'PUT', params: {end: 'now'}}
                            });
 
+  var timer_entity = function(response) {
+    timer = {
+      start: function() {
+        deferred = $q.defer();
+        UberZeitTimer.start(null,
+                            function(response) {
+                              deferred.resolve(timer_entity(response));
+                            },
+                            function(reason) {
+                              deferred.reject(reason);
+                            });
+        return deferred.promise;
+      },
+      stop: function() {
+        deferred = $q.defer();
+        UberZeitTimer.stop(null,
+                            function(response) {
+                              deferred.resolve(timer_entity(response));
+                            },
+                            function(reason) {
+                              deferred.reject(reason);
+                            });
+        return deferred.promise;
+      }
+    }
+    if(response.start != null && response.end == null) {
+      timer.running = true;
+      timer.duration = response.duration;
+      timer.started_at = moment(response.date + ' ' + response.start, 'YYYY-MM-DD HH:mm');
+    } else {
+      timer.running = false;
+      timer.duration = null;
+      timer.started_at = null;
+    }
+    timer.stopped = !timer.running;
+    return timer;
+  }
+
   return {
     timer: function() {
       deferred = $q.defer();
       UberZeitTimer.get(null,
                         function(response) {
-                          deferred.resolve({ 'running': true, 'duration': response.duration, start: UberZeitTimer.start, stop: UberZeitTimer.stop });
+                          deferred.resolve(timer_entity(response));
                         },
                         function(reason) {
-                          deferred.resolve({ 'running': false, 'duration': null, start: UberZeitTimer.start, stop: UberZeitTimer.stop });
+                          // if there is no timer, uberZeit returns {"status": 404}
+                          // if there was another error like no internet connection, there will be no data
+                          if(reason.status == 404 && (reason.data != null && reason.data.status == 404)) {
+                            deferred.resolve(timer_entity({}));
+                          } else {
+                            deferred.reject(reason);
+                          }
                         });
       return deferred.promise;
     },
@@ -100,20 +146,20 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource'])
   }
 
   $scope.stopTimer = function() {
-    console.log('stop');
-    $scope.timer.stop(
+
+    $scope.timer.stop().then(
       function(data) {
-        Flash.setMessage('Timer stopped!');
+        $scope.timer = data;
       },
       function(reason) {
         Flash.setMessage('Timer stop failed: ' + reason);
       });
   }
+
   $scope.startTimer = function() {
-    console.log('start');
-    $scope.timer.start(
+    $scope.timer.start().then(
       function(data) {
-        Flash.setMessage('Timer started!');
+        $scope.timer = data;
       },
       function(reason) {
         Flash.setMessage('Timer start failed (' + reason.status + ')');
@@ -128,18 +174,24 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource'])
     showDelay: 500
   });
 
-  timer_loaded = function(timer) {
-    $scope.timer = timer;
-    console.log(timer);
-    $scope.loading.hide();
-    $scope.$broadcast('scroll.refreshComplete');
-  }
-
-  $scope.onRefresh = function() {
+  $scope.refresh = function() {
     Flash.setMessage();
-    $scope.timer = Timer.timer().then(timer_loaded);
+
+    Timer.timer().then(
+      function(timer) {
+        $scope.timer = timer;
+        $scope.loading.hide();
+        $scope.$broadcast('scroll.refreshComplete');
+      },
+      function(reason) {
+        Flash.setMessage('Timer could not be loaded, no internet connection?');
+        $scope.timer = {};
+        $scope.loading.hide();
+        $scope.$broadcast('scroll.refreshComplete');
+      });
+
   }
 
-  $scope.onRefresh();
+  $scope.refresh();
 
 })

@@ -18,6 +18,9 @@
     <script src="js/angular-ui/angular-ui-router.js"></script>
     <script src="js/ionic-angular.js"></script>
 
+    <script src="js/moment.min.js"></script>
+    <script src="js/angular-moment.min.js"></script>
+
     <!-- Needed for Cordova/PhoneGap -->
     <script type="text/javascript" src="cordova.js"></script>
     <script src="js/app.js"></script>
@@ -73,7 +76,13 @@
 
           <div class="row">
             <div class="col">
-              <h1>{{timer.duration}}</h1>
+              <div ng-show="timer.running">
+                <h1>Your timer is running</h1>
+                <h1>since <span am-time-ago="timer.started_at"></span></h1>
+              </div>
+              <div ng-hide="timer.running">
+                <h1>Your timer is stopped</h1>
+              </div>
             </div>
           </div>
 
