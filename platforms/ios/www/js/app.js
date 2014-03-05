@@ -135,11 +135,12 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource'])
     $scope.$broadcast('scroll.refreshComplete');
   }
 
-  $scope.onRefresh = function() {
+
+  $scope.refresh = function() {
     Flash.setMessage();
     $scope.timer = Timer.timer().then(timer_loaded);
   }
 
-  $scope.onRefresh();
+  $scope.refresh();
 
 })
