@@ -70,9 +70,7 @@
         <ion-content has-header="true" padding="true" on-refresh="refresh()">
           <ion-refresher></ion-refresher>
 
-          <div class="card alert" ng-show="Flash.message">
-            <div class="item item-text-wrap">{{Flash.message}}</div>
-          </div>
+          <div flash-handler kind="{{flash.kind}}" message="{{flash.message}}"></div>
 
           <div class="row">
             <div class="col">

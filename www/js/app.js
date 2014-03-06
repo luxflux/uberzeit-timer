@@ -98,10 +98,19 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
 
 .factory('Flash', function($rootScope) {
   return {
+    kind: '',
     message: '',
     setMessage: function(message) {
       this.message = message;
-    }
+    },
+    setSuccessMessage: function(message) {
+      this.kind = 'success';
+      this.setMessage(message);
+    },
+    setErrorMessage: function(message) {
+      this.kind = 'error';
+      this.setMessage(message);
+    },
   }
 })
 
@@ -114,8 +123,33 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
   };
 })
 
+.directive('flashHandler', function() {
+  return {
+    scope: {
+      kind: '@kind',
+      message: '@message',
+    },
+    template: '<div class="card flash" ng-show="message"><div class="item item-text-wrap" ng-class="{\'item-assertive\': error, \'item-balanced\': success}" >{{message}}</div></div>',
+    link: function(scope, element, attrs) {
+      update = function() {
+        if(scope.kind == 'error') {
+          scope.error = true;
+          scope.success = false;
+        } else {
+          scope.error = false;
+          scope.success = true;
+        }
+        console.log('called');
+      }
+      scope.$watch('message', function(value) {
+        update();
+      });
+    },
+  }
+})
+
 .controller('MainCtrl', function($scope, $location, Flash, Page) {
-  $scope.Flash = Flash;
+  $scope.flash = Flash;
   $scope.Page = Page;
   $scope.leftButtons = [{
     type: 'button-light',
@@ -134,12 +168,13 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
   $scope.localStorage = localStorage;
   $scope.updateSettings = function(settings) {
     localStorage.uberzeit_api_token = settings.api_key;
-    Flash.setMessage('Saved!');
+    Flash.setSuccessMessage('Saved!');
     $location.path( "/timer" );
   }
 })
 .controller('TimerCtrl', function($scope, $ionicLoading, $location, Flash, Page, Timer) {
   Page.setTitle('Timer');
+  $scope.flash = Flash;
 
   if(localStorage.uberzeit_api_token == undefined) {
     $location.path( "/settings" );
@@ -152,7 +187,7 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
         $scope.timer = data;
       },
       function(reason) {
-        Flash.setMessage('Timer stop failed: ' + reason);
+        $scope.flash.setErrorMessage('Timer stop failed: ' + reason);
       });
   }
 
@@ -162,7 +197,7 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
         $scope.timer = data;
       },
       function(reason) {
-        Flash.setMessage('Timer start failed (' + reason.status + ')');
+        $scope.flash.setErrorMessage('Timer start failed (' + reason.status + ')');
       });
   }
 
@@ -175,7 +210,7 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
   });
 
   $scope.refresh = function() {
-    Flash.setMessage();
+    $scope.flash.setMessage();
 
     Timer.timer().then(
       function(timer) {
@@ -184,7 +219,7 @@ angular.module('uberzeit-timer', ['ionic', 'ngResource', 'angularMoment'])
         $scope.$broadcast('scroll.refreshComplete');
       },
       function(reason) {
-        Flash.setMessage('Timer could not be loaded, no internet connection?');
+        $scope.flash.setErrorMessage('Timer could not be loaded, no internet connection?');
         $scope.timer = {};
         $scope.loading.hide();
         $scope.$broadcast('scroll.refreshComplete');
